@@ -1,9 +1,12 @@
 <template>
   <h1>Quản lý sách</h1>
-  <FormSachComponent />
+  <FormSachComponent v-model:book="formBook" />
   <div class="container">
-    <button type="button" class="btn btn-outline-success">Add</button>
-    <button type="button" class="btn btn-outline-primary">Update</button>
+    <!-- Truy gia tri tu componnetn cha => con: props, event: emits
+     vue 3.4 + => v-model
+     -->
+    <button type="button" class="btn btn-outline-success" @click="addBook()">Add</button>
+    <button type="button" class="btn btn-outline-primary" @click="updateBook()">Update</button>
   </div>
 
   <table class="table container">
@@ -18,7 +21,7 @@
       </tr>
     </thead>
     <tbody>
-      <template v-for="item in listSach" :key="item.id">
+      <template v-for="(item, i) in listSach" :key="item.id">
         <tr>
           <td>{{ item.id }}</td>
           <td>{{ item.ten }}</td>
@@ -26,8 +29,17 @@
           <td>{{ item.tacGia }}</td>
           <td>{{ item.gia }}</td>
           <td>
-            <button type="button" class="btn btn-outline-primary">Detail</button>
-            <button type="button" class="btn btn-outline-danger">Delete</button>
+            <button type="button" class="btn btn-outline-primary" @click="detailBook(item)">
+              Detail
+            </button>
+            <!-- <button type="button" class="btn btn-outline-danger"
+            @click="deleteBook(item.id)">
+              Delete
+            </button> -->
+            <!-- i nay dai dien cho index  -->
+            <button type="button" class="btn btn-outline-danger" @click="deleteBook1(i)">
+              Delete
+            </button>
           </td>
         </tr>
       </template>
@@ -76,6 +88,54 @@ const listSach = ref([
     gia: 90000,
   },
 ])
+// -1 ban dau reset ban dau - chua update
+const idUpdate = ref(-1)
+const formBook = ref({
+  ten: '',
+  loai: '',
+  tacGia: '',
+  gia: 0,
+})
+// function deleteBook(id1) {
+//   // delete(index)
+//   // splice(index,1)
+//   // B1: Tim index cua sach can xoa => for - cach cu, findIndex
+//   const index = listSach.value.findIndex((b) => b.id === id1)
+//   // B2: Xoa phan tu tai index do
+//   listSach.value.splice(index, 1)
+// }
+function deleteBook1(index) {
+  // Xoa phan tu tai index
+  listSach.value.splice(index, 1)
+}
+function detailBook(item) {
+  // copy thong so cua object item vao formBook
+  formBook.value = { ...item } // Sao chep toan bo thuoc tinh cua item vao formBook
+  idUpdate.value = item.id // Luu id de update
+}
+function resetForm() {
+  formBook.value = {
+    ten: '',
+    loai: '',
+    tacGia: '',
+    gia: 0,
+  }
+}
+function addBook() {
+  // validate formBook
+  // add
+  listSach.value.push({
+    id: listSach.value.length + 1, // Tự động tăng ID
+    ...formBook.value, // Sao chép các thuộc tính từ formBook
+  })
+  // moi truong hop add thi can reset formBook
+  resetForm()
+}
+function updateBook() {
+  listSach.value[idUpdate.value] = { ...formBook.value } // Cap nhat thong tin sach
+  resetForm()
+  idUpdate.value = -1 // Reset idUpdate
+}
 </script>
 
 <style scoped>
